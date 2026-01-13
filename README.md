@@ -7,7 +7,7 @@ https://juneaja.github.io/chat_source-code/
 
 # Akses login
 USER = user |
-PASWORD = user123
+PASSWORD = user123
 
 ADMIN = admin |
-ADMIN = admin123
+PASSWORD = admin123
