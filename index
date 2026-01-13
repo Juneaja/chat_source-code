@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Chat - Login & Chat</title>
+    <style>
+        /* Reset dasar */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            transition: background-color 0.3s;
+        }
+
+        /* Container utama */
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        /* Form login */
+        .login-form {
+            display: block;
+        }
+
+        .chat-app {
+            display: none;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Chat interface */
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #fafafa;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .message.user {
+            background-color: #e1f5fe;
+            text-align: left;
+        }
+
+        .message.admin {
+            background-color: #fff3e0;
+            text-align: right;
+        }
+
+        .message .sender {
+            font-weight: bold;
+        }
+
+        /* Responsif */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            .chat-app {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Form Login -->
+        <div class="login-form">
+            <h2>Login Aplikasi Chat</h2>
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <select id="role">
+                <option value="user">Pengguna</option>
+                <option value="admin">Admin</option>
+            </select>
+            <button onclick="login()">Login</button>
+            <p id="login-error" style="color: red; display: none;">Username atau password salah!</p>
+        </div>
+
+        <!-- Aplikasi Chat -->
+        <div class="chat-app">
+            <h2>Chat Room - <span id="user-role"></span></h2>
+            <div class="chat-messages" id="chat-messages"></div>
+            <input type="text" id="message-input" placeholder="Ketik pesan..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">Kirim</button>
+            <button onclick="logout()">Logout</button>
+            <!-- Fitur admin: Hapus semua pesan -->
+            <div id="admin-controls" style="display: none; margin-top: 10px;">
+                <button onclick="clearMessages()">Hapus Semua Pesan (Admin)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulasi credentials sederhana (dalam produksi, gunakan database)
+        const users = {
+            user: { password: 'user123', role: 'user' },
+            admin: { password: 'admin123', role: 'admin' }
+        };
+
+        let currentUser = null;
+
+        // Fungsi login
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+
+            if (users[username] && users[username].password === password && users[username].role === role) {
+                currentUser = { username, role };
+                document.querySelector('.login-form').style.display = 'none';
+                document.querySelector('.chat-app').style.display = 'block';
+                document.getElementById('user-role').textContent = `${username} (${role})`;
+                if (role === 'admin') {
+                    document.getElementById('admin-controls').style.display = 'block';
+                }
+                loadMessages();
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        }
+
+        // Fungsi logout
+        function logout() {
+            currentUser = null;
+            document.querySelector('.login-form').style.display = 'block';
+            document.querySelector('.chat-app').style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('login-error').style.display = 'none';
+        }
+
+        // Fungsi kirim pesan
+        function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value.trim();
+            if (message && currentUser) {
+                const messages = getMessages();
+                messages.push({ sender: currentUser.username, role: currentUser.role, text: message, timestamp: new Date().toLocaleString() });
+                saveMessages(messages);
+                messageInput.value = '';
+                displayMessages();
+            }
+        }
+
+        // Handle enter key untuk kirim pesan
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Ambil pesan dari localStorage
+        function getMessages() {
+            return JSON.parse(localStorage.getItem('chatMessages')) || [];
+        }
+
+        // Simpan pesan ke localStorage
+        function saveMessages(messages) {
+            localStorage.setItem('chatMessages', JSON.stringify(messages));
+        }
+
+        // Tampilkan pesan
+        function displayMessages() {
+            const messages = getMessages();
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = '';
+            messages.forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${msg.role}`;
+                messageDiv.innerHTML = `<div class="sender">${msg.sender} (${msg.role}):</div> ${msg.text} <small>(${msg.timestamp})</small>`;
+                chatMessages.appendChild(messageDiv);
+            });
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Auto scroll ke bawah
+        }
+
+        // Load pesan saat login
+        function loadMessages() {
+            displayMessages();
+        }
+
+        // Fungsi admin: Hapus semua pesan
+        function clearMessages() {
+            if (currentUser && currentUser.role === 'admin') {
+                localStorage.removeItem('chatMessages');
+                displayMessages();
+            }
+        }
+    </script>
+</body>
+</html>
