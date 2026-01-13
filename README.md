@@ -1,2 +1,2 @@
 # chat_source-code
-source code chat,bisa dibuat acuan pembuatan aplikasi /website
+source code chat,bisa dibuat sebagai acuan belajar pembuatan aplikasi/website.
