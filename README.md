@@ -11,3 +11,8 @@ PASSWORD = user123
 
 ADMIN = admin |
 PASSWORD = admin123
+
+# Dukung Saya biar semangat membagi kebaikan (DONASI)
+
+Please support us so we can grow
+- Saweria: [Support via Saweria](https://saweria.co/Ngodingasik)
