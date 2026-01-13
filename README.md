@@ -6,8 +6,8 @@ source code chat,bisa dibuat sebagai acuan belajar pembuatan aplikasi/website.
 https://juneaja.github.io/chat_source-code/
 
 # Akses login
-USER = user
+USER = user |
 PASWORD = user123
 
-ADMIN = admin
+ADMIN = admin |
 ADMIN = admin123
